@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Discollect | Profile{% endblock %}
+{% block body_class %}profile-page{% endblock %}
+{% block main_class %}profile-page-main{% endblock %}
+{% block head_extra %}
+<script defer src="{{ url_for('static', filename='js/search.js') }}"></script>
+{% endblock %}
+{% block header_center %}{% endblock %}
+
+{% block content %}
+<section class="intro">
+	<p class="eyebrow">WELCOME, {{ current_user.username|upper }}</p>
+	<h1>Your collection and wishlist</h1>
+	<p>Review the full lists below and jump back to the homepage when you need the featured preview.</p>
+
+</section>
+
+<section id="profile-import" class="table-card">
+	<h2 class="section-title">Add record from Spotify</h2>
+	<p class="subtle">Search Spotify and add the album directly to your collection or wishlist.</p>
+	<form id="profile-spotify-form" class="search-inline" onsubmit="return false;">
+		<input id="profile-spotify-input" class="input" type="search" placeholder="Search Spotify">
+		<button class="button" type="submit">Search</button>
+	</form>
+	<div id="profile-spotify-status" class="subtle" style="margin-top:.5rem;"></div>
+	<div id="profile-spotify-results" class="product-grid" style="margin-top:1rem;"></div>
+</section>
+
+
+<section id="collection" class="table-card">
+	<h2 class="section-title">Your collection</h2>
+	{% if collection_records %}
+	<div class="table-wrap">
+		<table>
+			<thead>
+				<tr>
+					<th>Record</th>
+					<th>Artist</th>
+					<th>Genre</th>
+					<th>Price</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for record in collection_records %}
+				<tr>
+					<td>{{ record.record_name }}</td>
+					<td>{{ record.artist_name }}</td>
+					<td>{{ record.genre_name }}</td>
+					<td>kr {{ record.price }}</td>
+					<td>
+						<form method="post" action="{{ url_for('remove_from_collection', record_id=record.record_id) }}">
+							<input type="hidden" name="redirect_to" value="{{ request.path }}#collection">
+							<button class="icon-remove" type="submit" aria-label="Remove from collection">&times;</button>
+						</form>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	{% else %}
+	<p class="subtle">add something to your collection to see them here.</p>
+	{% endif %}
+
+<section id="wishlist" class="table-card">
+	<h2 class="section-title">Wishlist</h2>
+	<div class="table-wrap">
+	{% if wishlist_records %}
+	<div class="table-wrap">
+		<table>
+			<thead>
+				<tr>
+					<th>Record</th>
+					<th>Artist</th>
+					<th>Genre</th>
+							<th>Price</th>
+							<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for record in wishlist_records %}
+				<tr>
+					<td>{{ record.record_name }}</td>
+					<td>{{ record.artist_name }}</td>
+					<td>{{ record.genre_name }}</td>
+							<td>kr {{ record.price }}</td>
+							<td>
+								<form method="post" action="{{ url_for('remove_from_wishlist', record_id=record.record_id) }}">
+									<input type="hidden" name="redirect_to" value="{{ request.path }}#wishlist">
+									<button class="icon-remove" type="submit" aria-label="Remove from wishlist">&times;</button>
+								</form>
+							</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	{% else %}
+	<p class="subtle">add something to your wishlist to see them here.</p>
+	{% endif %}
+{% endblock %}

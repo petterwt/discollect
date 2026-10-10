@@ -1,0 +1,14 @@
+<nav class="navbar" aria-label="Primary">
+	<button id="theme-toggle-btn" aria-label="Switch to dark mode" title="Switch to dark mode"></button>
+	{% if current_user %}
+	<a class="nav-utility-link" href="{{ url_for('profile') }}" title="Profile">
+		<span class="icon-placeholder"><svg xmlns="http://w3.org" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+<circle cx="12" cy="7" r="4"></circle>
+</svg></span>
+	</a>
+	<a class="nav-text-link" href="{{ url_for('logout') }}" title="Log out">Log out</a>
+	{% else %}
+	<a class="nav-text-link" href="{{ url_for('login') }}" title="Log in">Log in</a>
+	{% endif %}
+</nav>

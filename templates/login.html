@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Discollect | Log in{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block main_class %}auth-page-main{% endblock %}
+{% block navbar %}
+<nav class="navbar" aria-label="Primary">
+	<a class="nav-text-link" href="{{ url_for('homepage') }}">Home</a>
+	<a class="nav-text-link" href="{{ url_for('register') }}">Register</a>
+</nav>
+{% endblock %}
+{% block head_extra %}
+<script defer src="{{ url_for('static', filename='js/validation.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<section class="auth-card intro">
+	<p class="eyebrow">ACCOUNT</p>
+	<h1>Log in</h1>
+	<p>Use the seeded credentials <strong>admin / admin123</strong> or <strong>customer / user123</strong>.</p>
+
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			<div class="login-messages" aria-live="polite">
+				{% for category, message in messages %}
+					<p class="login-message {{ category }}">{{ message }}</p>
+				{% endfor %}
+			</div>
+		{% endif %}
+	{% endwith %}
+
+	<form class="login-form" id="login-form" method="post" action="{{ url_for('login', next=next_target) }}" novalidate>
+		<input type="hidden" name="next" value="{{ next_target }}">
+
+		<label class="login-field">
+			<span>Username</span>
+			<input type="text" name="username" value="{{ username }}" autocomplete="username" required>
+		</label>
+
+		<label class="login-field">
+			<span>Password</span>
+			<input type="password" name="password" autocomplete="current-password" required>
+		</label>
+
+		<div class="login-errors" id="login-errors" aria-live="polite"></div>
+
+		<button class="button primary" type="submit">Log in</button>
+	</form>
+
+	<p class="auth-switch">Need an account? <a href="{{ url_for('register') }}">Register here</a>.</p>
+</section>
+{% endblock %}

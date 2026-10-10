@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Discollect | Admin{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+{% block main_class %}admin-page-main{% endblock %}
+{% block head_extra %}
+<script defer src="{{ url_for('static', filename='js/search.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<section class="intro">
+	<p class="eyebrow">ADMIN DASHBOARD</p>
+	<h1>Manage inventory</h1>
+	<p>Keep stock levels healthy by refilling records that are low or sold out.</p>
+</section>
+
+<!-- Spotify add new record -->
+<section class="table-card">
+	<h2 class="section-title">Add new record</h2>
+	<p class="subtle">Search Spotify and add the album straight to the catalog with a starting stock quantity.</p>
+	<form id="admin-spotify-form" class="search-inline" onsubmit="return false;">
+		<input id="admin-spotify-input" class="input" type="search" placeholder="Search Spotify">
+		<button class="button" type="submit">Search</button>
+	</form>
+	<div id="admin-spotify-status" class="subtle" style="margin-top:.5rem;"></div>
+	<div id="admin-spotify-results" class="product-grid" style="margin-top:1rem;"></div>
+</section>
+
+<section class="table-card">
+	<h2 class="section-title">Catalog search (database)</h2>
+	<p class="subtle">Search the full catalog (in-stock, sold out and everything in the DB). Use results to update stock or import later.</p>
+	<form id="admin-db-search-form" class="search-inline" onsubmit="return false;">
+		<input id="admin-db-search-input" class="input" type="search" placeholder="Search catalog by artist or album">
+		<button id="admin-db-search-button" class="button">Search</button>
+	</form>
+	<div id="admin-db-search-status" class="subtle"></div>
+	<div id="admin-db-search-results" class="grid"></div>
+</section>
+
+<section id="sold-out" class="table-card">
+	<h2 class="section-title">Sold out records</h2>
+	{% if sold_out_records %}
+	<div class="table-wrap">
+		<table>
+			<thead>
+				<tr>
+					<th>Record</th>
+					<th>Artist</th>
+					<th>Genre</th>
+					<th>Stock</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for record in sold_out_records %}
+				<tr>
+					<td>{{ record.record_name }}</td>
+					<td>{{ record.artist_name }}</td>
+					<td>{{ record.genre_name }}</td>
+					<td>{{ record.stock_qty }}</td>
+					<td>
+						<div class="stock-controls">
+							<form method="post" action="{{ url_for('change_stock', record_id=record.record_id) }}">
+								<input type="hidden" name="delta" value="-1">
+								<input type="hidden" name="redirect_to" value="{{ request.path }}#sold-out">
+								<button class="btn-decrement" type="submit" title="Decrement">-</button>
+							</form>
+							<form method="post" action="{{ url_for('change_stock', record_id=record.record_id) }}">
+								<input type="hidden" name="delta" value="1">
+								<input type="hidden" name="redirect_to" value="{{ request.path }}#sold-out">
+								<button class="btn-increment" type="submit" title="Increment">+</button>
+							</form>
+							<form method="post" action="{{ url_for('set_stock', record_id=record.record_id) }}">
+								<input class="stock-input" type="number" name="stock_qty" value="{{ record.stock_qty }}" min="0">
+								<input type="hidden" name="redirect_to" value="{{ request.path }}#sold-out">
+								<button class="btn-set" type="submit">Set</button>
+							</form>
+						</div>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	{% else %}
+	<p class="subtle">All records are currently in stock. Nothing is sold out.</p>
+	{% endif %}
+</section>
+{% endblock %}
