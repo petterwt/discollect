@@ -1,15 +1,18 @@
 # Discollect
 
 Discollect is a vinyl shop and collection tracker.
+
 Users can browse records in stock, search the catalog, maintain a wishlist and collection, and admins can manage stock.
 
-Originally built as an exam project in DAT130 (Databases and Web Programming) at the University of Stavanger, spring 2026.
+![Homepage with record search and weekly picks](docs/screenshots/homepage.png)
+
+Originally built as an exam project in DAT130 at University of Stavanger.
 
 > **Work in progress:** A TypeScript rewrite (Next.js, React, PostgreSQL, Drizzle ORM) is under development. This repository contains the original Flask/MySQL/JavaScript version.
 
 ## How To Run
 
-Terminal commands are shown below. Contact me if any problems occur.
+Terminal commands are shown below the list.
 
 1. Make sure you are in the project root directory.
 2. Create and activate a venv.
