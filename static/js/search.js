@@ -108,11 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				<div class="record-actions record-actions-search">
 					<form method="post" action="/wishlist/add/${encodeURIComponent(record.record_id)}">
 						<input type="hidden" name="redirect_to" value="${escapeHtml(window.location.pathname)}">
-						<button class="button wishlist-button button-small" type="submit">+ Wishlist</button>
+						<button class="button wishlist-button button-small" type="submit" data-label-add="+ Wishlist" data-label-remove="✓ In wishlist">+ Wishlist</button>
 					</form>
 					<form method="post" action="/collection/add/${encodeURIComponent(record.record_id)}">
 						<input type="hidden" name="redirect_to" value="${escapeHtml(window.location.pathname)}">
-						<button class="button secondary button-small" type="submit">+ Collection</button>
+						<button class="button secondary button-small" type="submit" data-label-add="+ Collection" data-label-remove="✓ In collection">+ Collection</button>
 					</form>
 				</div>
 			</article>

@@ -106,7 +106,7 @@
         <div class="record-actions">
             <form method="post" action="{{ url_for('remove_from_wishlist', record_id=record.record_id) if record.record_id in wishlist_record_ids else url_for('add_to_wishlist', record_id=record.record_id) }}">
                 <input type="hidden" name="redirect_to" value="{{ request.path }}">
-                <button class="button wishlist-button button-small" type="submit">
+                <button class="button wishlist-button button-small" type="submit" data-label-add="Save to wishlist" data-label-remove="Remove from wishlist">
                     {% if record.record_id in wishlist_record_ids %}Remove from wishlist{% else %}Save to wishlist{% endif %}
                 </button>
             </form>

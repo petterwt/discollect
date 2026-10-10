@@ -18,7 +18,7 @@ Terminal commands are shown below. Contact me if any problems occur.
 5. Create a new file in project root named .env.
 6. Copy contents of .env.example into the created .env file.
 7. Fill out the placeholders in the .env file (db password and spotify keys from developer.spotify.com/dashboard)
-8. Run the db initialization file init_db.py.
+8. Initialize the database from the project root: python3 -m database.init_db
 9. Start the Flask app with python3 app.py.
 10. Open in browser.
 
@@ -36,7 +36,7 @@ mysql -u root -p
 
 CREATE DATABASE IF NOT EXISTS discollect CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-python3 database/init_db.py
+python3 -m database.init_db
 python3 app.py
 ```
 

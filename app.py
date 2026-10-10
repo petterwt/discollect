@@ -1,5 +1,6 @@
 import os
 from functools import wraps
+from urllib.parse import urlsplit
 
 import requests as http_requests
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for, flash
@@ -54,10 +55,32 @@ def inject_auth_context():
     }
 
 
+def wants_json():
+    """True when the request comes from our fetch() calls and expects JSON back."""
+    return request.headers.get("X-Requested-With") == "fetch"
+
+
+def safe_redirect_target(target, fallback):
+    """Return target only if it is a relative path on this site, otherwise fallback.
+
+    Rejects absolute URLs and protocol-relative URLs like //evil.com or /\\evil.com
+    to prevent open redirects.
+    """
+    if not target:
+        return fallback
+    normalized = target.replace("\\", "/")
+    parts = urlsplit(normalized)
+    if parts.scheme or parts.netloc or not normalized.startswith("/"):
+        return fallback
+    return target
+
+
 def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
         if not session.get("user_id"):
+            if wants_json():
+                return jsonify({"ok": False, "error": "Login required."}), 401
             return redirect(url_for("login", next=request.path))
         return view(*args, **kwargs)
 
@@ -170,8 +193,7 @@ def login():
         session['username'] = user['username']
         session['role_name'] = user['role_name']
 
-        if not next_target.startswith('/'):
-            next_target = url_for('profile')
+        next_target = safe_redirect_target(next_target, url_for('profile'))
 
         return redirect(next_target)
 
@@ -265,40 +287,40 @@ def profile():
 # ==============================
 # Collection/Wishlist Mutations
 # ==============================
+def list_change_response(message, in_list):
+    """JSON for fetch() requests, otherwise flash + redirect back to the page."""
+    if wants_json():
+        return jsonify({"ok": True, "message": message, "in_list": in_list})
+    flash(message, 'success')
+    return redirect(safe_redirect_target(request.form.get('redirect_to'), url_for('homepage')))
+
+
 @app.route('/wishlist/add/<int:record_id>', methods=['POST'])
 @login_required
 def add_to_wishlist(record_id):
     inserted = save_record_for_user(session['user_id'], 'user_wishlist', record_id)
-    flash('Added to your wishlist.' if inserted else 'Already in your wishlist.', 'success')
-    redirect_to = request.form.get('redirect_to', url_for('homepage'))
-    return redirect(redirect_to if redirect_to.startswith('/') else url_for('homepage'))
+    return list_change_response('Added to your wishlist.' if inserted else 'Already in your wishlist.', in_list=True)
 
 
 @app.route('/wishlist/remove/<int:record_id>', methods=['POST'])
 @login_required
 def remove_from_wishlist(record_id):
     deleted = remove_record_for_user(session['user_id'], 'user_wishlist', record_id)
-    flash('Removed from your wishlist.' if deleted else 'Record was not in your wishlist.', 'success')
-    redirect_to = request.form.get('redirect_to', url_for('homepage'))
-    return redirect(redirect_to if redirect_to.startswith('/') else url_for('homepage'))
+    return list_change_response('Removed from your wishlist.' if deleted else 'Record was not in your wishlist.', in_list=False)
 
 
 @app.route('/collection/add/<int:record_id>', methods=['POST'])
 @login_required
 def add_to_collection(record_id):
     inserted = save_record_for_user(session['user_id'], 'user_collection', record_id)
-    flash('Added to your collection.' if inserted else 'Already in your collection.', 'success')
-    redirect_to = request.form.get('redirect_to', url_for('homepage'))
-    return redirect(redirect_to if redirect_to.startswith('/') else url_for('homepage'))
+    return list_change_response('Added to your collection.' if inserted else 'Already in your collection.', in_list=True)
 
 
 @app.route('/collection/remove/<int:record_id>', methods=['POST'])
 @login_required
 def remove_from_collection(record_id):
     deleted = remove_record_for_user(session['user_id'], 'user_collection', record_id)
-    flash('Removed from your collection.' if deleted else 'Record was not in your collection.', 'success')
-    redirect_to = request.form.get('redirect_to', url_for('homepage'))
-    return redirect(redirect_to if redirect_to.startswith('/') else url_for('homepage'))
+    return list_change_response('Removed from your collection.' if deleted else 'Record was not in your collection.', in_list=False)
 
 
 # ============
@@ -342,7 +364,7 @@ def set_stock(record_id):
     conn.close()
 
     flash('Stock updated.', 'success')
-    return redirect(request.form.get('redirect_to') or url_for('admin_dashboard'))
+    return redirect(safe_redirect_target(request.form.get('redirect_to'), url_for('admin_dashboard')))
 
 
 @app.route('/admin/change-stock/<int:record_id>', methods=['POST'])
@@ -354,7 +376,7 @@ def change_stock(record_id):
         delta = int(delta_text)
     except ValueError:
         flash('Invalid delta.', 'error')
-        return redirect(request.form.get('redirect_to') or url_for('admin_dashboard'))
+        return redirect(safe_redirect_target(request.form.get('redirect_to'), url_for('admin_dashboard')))
 
     conn = get_db_connection()
     cur = conn.cursor()
@@ -365,7 +387,7 @@ def change_stock(record_id):
         cur.close()
         conn.close()
         flash('Record not found.', 'error')
-        return redirect(request.form.get('redirect_to') or url_for('admin_dashboard'))
+        return redirect(safe_redirect_target(request.form.get('redirect_to'), url_for('admin_dashboard')))
 
     try:
         current = int(row[0]) if isinstance(row, tuple) else int(row.get('stock_qty') or 0)
@@ -382,7 +404,7 @@ def change_stock(record_id):
     conn.close()
 
     flash('Stock adjusted.', 'success')
-    return redirect(request.form.get('redirect_to') or url_for('admin_dashboard'))
+    return redirect(safe_redirect_target(request.form.get('redirect_to'), url_for('admin_dashboard')))
 
 
 # ==========

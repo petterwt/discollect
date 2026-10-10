@@ -31,7 +31,7 @@
 <section id="collection" class="table-card">
 	<h2 class="section-title">Your collection</h2>
 	{% if collection_records %}
-	<div class="table-wrap">
+	<div class="table-wrap" data-empty-message="add something to your collection to see them here.">
 		<table>
 			<thead>
 				<tr>
@@ -63,12 +63,12 @@
 	{% else %}
 	<p class="subtle">add something to your collection to see them here.</p>
 	{% endif %}
+</section>
 
 <section id="wishlist" class="table-card">
 	<h2 class="section-title">Wishlist</h2>
-	<div class="table-wrap">
 	{% if wishlist_records %}
-	<div class="table-wrap">
+	<div class="table-wrap" data-empty-message="add something to your wishlist to see them here.">
 		<table>
 			<thead>
 				<tr>
@@ -100,4 +100,5 @@
 	{% else %}
 	<p class="subtle">add something to your wishlist to see them here.</p>
 	{% endif %}
+</section>
 {% endblock %}
