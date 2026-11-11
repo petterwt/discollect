@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}Discollect{% endblock %}</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+	<!-- Apply saved theme immediately to prevent flash -->
+	<script>(function(){try{var t=localStorage.getItem('discollect-theme');if(t==='dark')document.documentElement.classList.add('dark');}catch(_){}})();</script>
+	{% block head_extra %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+<header class="site-header">
+	<div class="shell header-inner">
+		<div class="header-left-group">
+			{% block header_left %}
+			<a class="logo" href="{{ url_for('homepage') }}">Discollect</a>
+			{% endblock %}
+		</div>
+
+		{% block header_center %}{% endblock %}
+
+			{% block navbar %}
+				{% include 'partials/navbar.html' %}
+			{% endblock %}
+	</div>
+</header>
+
+<main class="shell page {% block main_class %}{% endblock %}">
+	{% block content %}{% endblock %}
+</main>
+
+{% include 'partials/footer.html' %}
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+{% endblock %}
+</body>
+</html>
